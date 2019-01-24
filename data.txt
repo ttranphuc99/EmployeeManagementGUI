@@ -1,0 +1,10 @@
+E001;Tran Thien Phuc;IT;500
+E002;Nguyen Hoang Minh Nhut;IC;200
+E003;Pham Minh Hai;Language;300
+E004;Tran Gia Huy;IT;250
+E005;Nguyen Minh Luan;Library;500
+E006;Tu Minh Duy;IT;300
+E007;Trinh Tran The Thong;IC;350
+E008;Do Luong Tai;Language;300
+E009;Nguyen Van Sang;IC;300
+E010;Tran Ngoc Duc;Language;550

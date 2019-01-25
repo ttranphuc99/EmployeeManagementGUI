@@ -5,3 +5,6 @@ E005;Nguyen Minh Luan;Language;500
 E007;Trinh Tran The Thong;IC;350
 E008;Do Luong Tai;Language;300
 E009;Nguyen Van Sang;IC;300
+E010;Mai Nguyen Nhat Dang;Library;250
+E011;Hai Pham;Library;500
+E012;Minh Thuong;Language;420

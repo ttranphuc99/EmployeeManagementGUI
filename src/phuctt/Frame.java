@@ -56,23 +56,32 @@ public class Frame extends javax.swing.JFrame {
                     changed = true;
                     setStatus("Data has been modified!");
                     if (e.getColumn() == 0) {
-                        String code = (String) tblEmployee.getValueAt(e.getFirstRow(), e.getColumn());
+                        int col = e.getColumn();
+                        int row = e.getFirstRow();
+                        String code = (String) tblEmployee.getValueAt(row, col);
                         String nameDup = isDuplicateID(code);
+                        if (nameDup.equals(((Vector<String>) data.get(row)).get(1))) {
+                            return;
+                        }
                         String newCode;
                         do {
                             newCode = JOptionPane.showInputDialog("This code is used for " + nameDup + ". Enter new code");
                             if (newCode != null) {
                                 while (newCode.equals("") || !newCode.matches("E\\d\\d\\d$")) {
                                     newCode = JOptionPane.showInputDialog("This code is not match with format Exxx");
-                                    if (newCode == null) newCode = "";
+                                    if (newCode == null) {
+                                        tblEmployee.setValueAt("", e.getFirstRow(), e.getColumn());
+                                        return;
+                                    }
                                 }
 
                                 nameDup = isDuplicateID(newCode);
                             } else {
-                                newCode = "";
+                                tblEmployee.setValueAt("", e.getFirstRow(), e.getColumn());
+                                return;
                             }
                         } while (nameDup != null);
-                        tblEmployee.setValueAt(newCode, e.getFirstRow(), e.getColumn());
+                        tblEmployee.setValueAt(newCode, row, col);
                     }
                 }
 
@@ -96,17 +105,10 @@ public class Frame extends javax.swing.JFrame {
         String regexCode = "E\\d\\d\\d$";
         String regexSalary = "^[0-9]*$";
         for (int i = 0; i < tblEmployee.getRowCount(); i++) {
-            String code = (String) tblEmployee.getValueAt(i, 0);
-            String salary = (String) tblEmployee.getValueAt(i, 3);
-            String name = (String) tblEmployee.getValueAt(i, 1);
+            String code = String.valueOf(tblEmployee.getValueAt(i, 0));
+            String salary = String.valueOf(tblEmployee.getValueAt(i, 3));
+            String name = String.valueOf(tblEmployee.getValueAt(i, 1));
 
-            String dupName = isDuplicateID(code);
-            if (dupName != null) {
-                JOptionPane.showMessageDialog(this, "Code: " + code + " is used for " + dupName + ".");
-                check = false;
-                tblEmployee.setEditingColumn(0);
-                tblEmployee.setEditingRow(i);
-            }
             if (!code.matches(regexCode)) {
                 JOptionPane.showMessageDialog(this, "Code: " + code + " is not match with format Exxx");
                 check = false;
@@ -408,7 +410,7 @@ public class Frame extends javax.swing.JFrame {
             Vector<String> newRecord = new Vector<>();
             newRecord.add("");
             newRecord.add("");
-            newRecord.add("");
+            newRecord.add("IT");
 
             data.add(newRecord);
             model.setDataVector(data, header);
@@ -466,10 +468,7 @@ public class Frame extends javax.swing.JFrame {
                     }
                 }
             } else {
-                if (dept.equals("All")) {
-                    btnViewAllActionPerformed(evt);
-                }
-                if (vec.get(2).equals(dept)) {
+                if (vec.get(2).equals(dept) || dept.equals("All")) {
                     searchResult.add(obj);
                 }
             }

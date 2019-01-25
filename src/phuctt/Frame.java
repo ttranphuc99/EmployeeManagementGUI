@@ -55,7 +55,27 @@ public class Frame extends javax.swing.JFrame {
                 if (!isLoad) {
                     changed = true;
                     setStatus("Data has been modified!");
+                    if (e.getColumn() == 0) {
+                        String code = (String) tblEmployee.getValueAt(e.getFirstRow(), e.getColumn());
+                        String nameDup = isDuplicateID(code);
+                        String newCode;
+                        do {
+                            newCode = JOptionPane.showInputDialog("This code is used for " + nameDup + ". Enter new code");
+                            if (newCode != null) {
+                                while (newCode.equals("") || !newCode.matches("E\\d\\d\\d$")) {
+                                    newCode = JOptionPane.showInputDialog("This code is not match with format Exxx");
+                                    if (newCode == null) newCode = "";
+                                }
+
+                                nameDup = isDuplicateID(newCode);
+                            } else {
+                                newCode = "";
+                            }
+                        } while (nameDup != null);
+                        tblEmployee.setValueAt(newCode, e.getFirstRow(), e.getColumn());
+                    }
                 }
+
             }
         });
     }
@@ -80,6 +100,13 @@ public class Frame extends javax.swing.JFrame {
             String salary = (String) tblEmployee.getValueAt(i, 3);
             String name = (String) tblEmployee.getValueAt(i, 1);
 
+            String dupName = isDuplicateID(code);
+            if (dupName != null) {
+                JOptionPane.showMessageDialog(this, "Code: " + code + " is used for " + dupName + ".");
+                check = false;
+                tblEmployee.setEditingColumn(0);
+                tblEmployee.setEditingRow(i);
+            }
             if (!code.matches(regexCode)) {
                 JOptionPane.showMessageDialog(this, "Code: " + code + " is not match with format Exxx");
                 check = false;
@@ -109,6 +136,18 @@ public class Frame extends javax.swing.JFrame {
         txtStatus.setText(mess);
     }
 
+    private String isDuplicateID(String id) {
+        String name = null;
+        for (Object obj : data) {
+            Vector<String> vec = (Vector<String>) obj;
+            if (vec.get(0).equalsIgnoreCase(id)) {
+                name = vec.get(1);
+                break;
+            }
+        }
+        return name;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -133,11 +172,10 @@ public class Frame extends javax.swing.JFrame {
         txtName = new javax.swing.JTextField();
         lbDept = new javax.swing.JLabel();
         cbDept = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
-        txtSalary = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        btnViewAll = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuLoadData = new javax.swing.JMenuItem();
@@ -219,7 +257,7 @@ public class Frame extends javax.swing.JFrame {
         lbDept.setText("Dept:");
         getContentPane().add(lbDept, new org.netbeans.lib.awtextra.AbsoluteConstraints(742, 223, -1, -1));
 
-        cbDept.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "IT", "IC", "Languge", "Library" }));
+        cbDept.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "IT", "IC", "Language", "Library" }));
         cbDept.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbDeptActionPerformed(evt);
@@ -227,17 +265,13 @@ public class Frame extends javax.swing.JFrame {
         });
         getContentPane().add(cbDept, new org.netbeans.lib.awtextra.AbsoluteConstraints(795, 220, -1, -1));
 
-        jLabel2.setText("Salary:");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(736, 263, -1, -1));
-        getContentPane().add(txtSalary, new org.netbeans.lib.awtextra.AbsoluteConstraints(795, 260, 241, -1));
-
         btnSearch.setText("Search");
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSearchActionPerformed(evt);
             }
         });
-        getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(871, 311, -1, -1));
+        getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 260, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         jLabel1.setText("Employee Management - PhucTT");
@@ -246,6 +280,14 @@ public class Frame extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel3.setText("Status:");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 620, -1, -1));
+
+        btnViewAll.setText("View All");
+        btnViewAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewAllActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnViewAll, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 570, -1, -1));
 
         jMenu1.setText("File");
 
@@ -310,10 +352,6 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_menuViewDetailActionPerformed
 
-    private void cbDeptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDeptActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbDeptActionPerformed
-
     private void btnLoadDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadDataActionPerformed
         isLoad = true;
         if (changed) {
@@ -344,7 +382,7 @@ public class Frame extends javax.swing.JFrame {
         data = dao.loadData();
         model.setDataVector(data, header);
         tblEmployee.setModel(model);
-
+        setEditorDept();
         isLoad = false;
     }//GEN-LAST:event_btnLoadDataActionPerformed
 
@@ -397,8 +435,66 @@ public class Frame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRemoveActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        // TODO add your handling code here:
+        String name = txtName.getText().trim();
+        String code = String.valueOf(txtCode.getText()).trim();
+        String dept = (String) cbDept.getSelectedItem();
+
+        //check validate
+        String regexCode = "E\\d\\d\\d$";
+        if (!code.equals("") && !code.matches(regexCode)) {
+            JOptionPane.showMessageDialog(this, "Code is not match with format Exxx");
+            txtCode.requestFocus();
+            return;
+        }
+
+        Vector searchResult = new Vector();
+        for (Object obj : data) {
+            Vector<String> vec = (Vector<String>) obj;
+            if (!code.equals("")) {
+                if (vec.get(0).equals(code)) {
+                    if (vec.get(2).equals(dept) || dept.equals("All")) {
+                        if (name.equals("") || vec.get(1).toLowerCase().contains(name)) {
+                            searchResult.add(obj);
+                            break;
+                        }
+                    }
+                }
+            } else if (!name.equals("")) {
+                if (vec.get(1).toLowerCase().contains(name)) {
+                    if (vec.get(2).equals(dept) || dept.equals("All")) {
+                        searchResult.add(obj);
+                    }
+                }
+            } else {
+                if (dept.equals("All")) {
+                    btnViewAllActionPerformed(evt);
+                }
+                if (vec.get(2).equals(dept)) {
+                    searchResult.add(obj);
+                }
+            }
+        }
+
+        if (searchResult.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No result found!");
+        } else {
+            isLoad = true;
+            model.setDataVector(searchResult, header);
+            setEditorDept();
+            isLoad = false;
+        }
     }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void cbDeptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDeptActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbDeptActionPerformed
+
+    private void btnViewAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewAllActionPerformed
+        isLoad = true;
+        model.setDataVector(data, header);
+        setEditorDept();
+        isLoad = false;
+    }//GEN-LAST:event_btnViewAllActionPerformed
 
     /**
      * @param args the command line arguments
@@ -469,10 +565,10 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JButton btnRemove;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnViewAll;
     private javax.swing.JComboBox<String> cbDept;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -492,7 +588,6 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JTable tblEmployee;
     private javax.swing.JTextField txtCode;
     private javax.swing.JTextField txtName;
-    private javax.swing.JTextField txtSalary;
     private javax.swing.JTextPane txtStatus;
     // End of variables declaration//GEN-END:variables
 }

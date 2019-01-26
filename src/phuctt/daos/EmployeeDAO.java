@@ -16,10 +16,15 @@ import java.util.Vector;
  * @author Thien Phuc
  */
 public class EmployeeDAO {
-    private String filename = "data.txt";
+    private final String file = "data.txt";
+    private final String autoFilename = "auto-save-data.txt";
     
     //load data
-    public Vector loadData() {
+    public Vector loadData(boolean isAuto) {
+        String filename;
+        if (isAuto) filename = autoFilename;
+        else filename = file;
+        
         File f = null;
         FileReader fr = null;
         BufferedReader br = null;
@@ -61,7 +66,11 @@ public class EmployeeDAO {
     }
     
     //save data
-    public void saveData(Vector v) {
+    public void saveData(Vector v, boolean isAuto) {
+        String filename;
+        if (isAuto) filename = autoFilename;
+        else filename = file;
+        
         File f = null;
         PrintWriter pw = null;
         

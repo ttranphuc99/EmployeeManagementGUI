@@ -8,11 +8,11 @@ package phuctt;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -38,7 +38,7 @@ public class Frame extends javax.swing.JFrame {
         model = (DefaultTableModel) tblEmployee.getModel();
         header = new Vector<>();
         EmployeeDAO dao = new EmployeeDAO();
-        data = dao.loadData();
+        data = dao.loadData(false);
 
         header.add("Code");
         header.add("Name");
@@ -184,11 +184,10 @@ public class Frame extends javax.swing.JFrame {
         menuSave = new javax.swing.JMenuItem();
         menuNew = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        menuEdit = new javax.swing.JMenuItem();
         menuDelete = new javax.swing.JMenuItem();
-        menuViewDetail = new javax.swing.JMenuItem();
         Window = new javax.swing.JMenu();
         menuExit = new javax.swing.JMenuItem();
+        menuRecovery = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -314,22 +313,14 @@ public class Frame extends javax.swing.JFrame {
 
         jMenu2.setText("Edit");
 
-        menuEdit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        menuEdit.setText("Edit");
-        jMenu2.add(menuEdit);
-
         menuDelete.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
         menuDelete.setText("Remove");
-        jMenu2.add(menuDelete);
-
-        menuViewDetail.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.SHIFT_MASK));
-        menuViewDetail.setText("View Detail");
-        menuViewDetail.addActionListener(new java.awt.event.ActionListener() {
+        menuDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuViewDetailActionPerformed(evt);
+                menuDeleteActionPerformed(evt);
             }
         });
-        jMenu2.add(menuViewDetail);
+        jMenu2.add(menuDelete);
 
         jMenuBar1.add(jMenu2);
 
@@ -338,6 +329,15 @@ public class Frame extends javax.swing.JFrame {
         menuExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         menuExit.setText("Exit");
         Window.add(menuExit);
+
+        menuRecovery.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuRecovery.setText("Recovery");
+        menuRecovery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuRecoveryActionPerformed(evt);
+            }
+        });
+        Window.add(menuRecovery);
 
         jMenuBar1.add(Window);
 
@@ -350,10 +350,6 @@ public class Frame extends javax.swing.JFrame {
         btnLoadDataActionPerformed(evt);
     }//GEN-LAST:event_menuLoadDataActionPerformed
 
-    private void menuViewDetailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuViewDetailActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_menuViewDetailActionPerformed
-
     private void btnLoadDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadDataActionPerformed
         isLoad = true;
         if (changed) {
@@ -362,7 +358,7 @@ public class Frame extends javax.swing.JFrame {
                 case JOptionPane.OK_OPTION:
                     EmployeeDAO dao = new EmployeeDAO();
                     if (checkValidate()) {
-                        dao.saveData(data);
+                        dao.saveData(data, false);
                         changed = false;
                         setStatus("Data has been saved!");
                     } else {
@@ -381,7 +377,7 @@ public class Frame extends javax.swing.JFrame {
         }
         changed = false;
         EmployeeDAO dao = new EmployeeDAO();
-        data = dao.loadData();
+        data = dao.loadData(false);
         model.setDataVector(data, header);
         tblEmployee.setModel(model);
         setEditorDept();
@@ -391,7 +387,7 @@ public class Frame extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         EmployeeDAO dao = new EmployeeDAO();
         if (checkValidate()) {
-            dao.saveData(data);
+            dao.saveData(data, false);
             changed = false;
             setStatus("Data has been saved!");
         }
@@ -495,6 +491,16 @@ public class Frame extends javax.swing.JFrame {
         isLoad = false;
     }//GEN-LAST:event_btnViewAllActionPerformed
 
+    private void menuDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuDeleteActionPerformed
+        btnRemoveActionPerformed(evt);
+    }//GEN-LAST:event_menuDeleteActionPerformed
+
+    private void menuRecoveryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRecoveryActionPerformed
+        EmployeeDAO dao = new EmployeeDAO();
+        data = dao.loadData(true);
+        model.setDataVector(data, header);
+    }//GEN-LAST:event_menuRecoveryActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -539,7 +545,7 @@ public class Frame extends javax.swing.JFrame {
                     if (choice == JOptionPane.OK_OPTION) {
                         EmployeeDAO dao = new EmployeeDAO();
                         if (frame.checkValidate()) {
-                            dao.saveData(frame.data);
+                            dao.saveData(frame.data, false);
                             System.exit(0);
                         }
                     } else if (choice == JOptionPane.NO_OPTION) {
@@ -554,6 +560,24 @@ public class Frame extends javax.swing.JFrame {
             }
         });
 
+        //auto save after 10 minutes
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                EmployeeDAO dao = new EmployeeDAO();
+                
+                do {                    
+                    try {
+                        Thread.sleep(1000*60*10);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    dao.saveData(frame.data, true);
+                    frame.txtStatus.setText("Auto saved data in recovery file!");
+                } while (true);
+            }
+        };
+        thread.run();
     }
 
 
@@ -578,12 +602,11 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JLabel lbDept;
     private javax.swing.JLabel lbName;
     private javax.swing.JMenuItem menuDelete;
-    private javax.swing.JMenuItem menuEdit;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenuItem menuLoadData;
     private javax.swing.JMenuItem menuNew;
+    private javax.swing.JMenuItem menuRecovery;
     private javax.swing.JMenuItem menuSave;
-    private javax.swing.JMenuItem menuViewDetail;
     private javax.swing.JTable tblEmployee;
     private javax.swing.JTextField txtCode;
     private javax.swing.JTextField txtName;

@@ -259,11 +259,6 @@ public class Frame extends javax.swing.JFrame {
         getContentPane().add(lbDept, new org.netbeans.lib.awtextra.AbsoluteConstraints(742, 223, -1, -1));
 
         cbDept.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "IT", "IC", "Language", "Library" }));
-        cbDept.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbDeptActionPerformed(evt);
-            }
-        });
         getContentPane().add(cbDept, new org.netbeans.lib.awtextra.AbsoluteConstraints(795, 220, -1, -1));
 
         btnSearch.setText("Search");
@@ -328,6 +323,11 @@ public class Frame extends javax.swing.JFrame {
 
         menuExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         menuExit.setText("Exit");
+        menuExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuExitActionPerformed(evt);
+            }
+        });
         Window.add(menuExit);
 
         menuRecovery.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -480,10 +480,6 @@ public class Frame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSearchActionPerformed
 
-    private void cbDeptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDeptActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbDeptActionPerformed
-
     private void btnViewAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewAllActionPerformed
         isLoad = true;
         model.setDataVector(data, header);
@@ -500,6 +496,26 @@ public class Frame extends javax.swing.JFrame {
         data = dao.loadData(true);
         model.setDataVector(data, header);
     }//GEN-LAST:event_menuRecoveryActionPerformed
+
+    private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
+        if (changed) {
+            int choice = JOptionPane.showConfirmDialog(this, "Data is modified. Do you want to save?");
+            if (choice == JOptionPane.OK_OPTION) {
+                EmployeeDAO dao = new EmployeeDAO();
+                if (checkValidate()) {
+                    dao.saveData(data, false);
+                    System.exit(0);
+                }
+            } else if (choice == JOptionPane.NO_OPTION) {
+                System.exit(0);
+            }
+        } else {
+            int choice = JOptionPane.showConfirmDialog(this, "Do you want to exit?");
+            if (choice == JOptionPane.OK_OPTION) {
+                System.exit(0);
+            }
+        }
+    }//GEN-LAST:event_menuExitActionPerformed
 
     /**
      * @param args the command line arguments
@@ -565,10 +581,10 @@ public class Frame extends javax.swing.JFrame {
             @Override
             public void run() {
                 EmployeeDAO dao = new EmployeeDAO();
-                
-                do {                    
+
+                do {
                     try {
-                        Thread.sleep(1000*60*10);
+                        Thread.sleep(1000 * 60 * 10);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
